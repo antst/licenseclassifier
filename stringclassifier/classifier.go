@@ -52,8 +52,8 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/google/licenseclassifier/stringclassifier/internal/pq"
-	"github.com/google/licenseclassifier/stringclassifier/searchset"
+	"github.com/antst/licenseclassifier/stringclassifier/internal/pq"
+	"github.com/antst/licenseclassifier/stringclassifier/searchset"
 	"github.com/sergi/go-diff/diffmatchpatch"
 )
 
@@ -283,9 +283,11 @@ func (m likelyMatches) Swap(i, j int)      { m[i], m[j] = m[j], m[i] }
 // nearest match at the beginning.
 func (c *Classifier) nearestMatch(unknown string) *pq.Queue {
 	var mu sync.Mutex // Protect the priority queue.
-	pq := pq.NewQueue(func(x, y interface{}) bool {
-		return x.(*Match).Confidence > y.(*Match).Confidence
-	}, nil)
+	pq := pq.NewQueue(
+		func(x, y interface{}) bool {
+			return x.(*Match).Confidence > y.(*Match).Confidence
+		}, nil,
+	)
 
 	unknown = c.normalize(unknown)
 	if len(unknown) == 0 {
@@ -349,9 +351,11 @@ func newMatcher(unknown string, threshold float64) *matcher {
 		unknown:     searchset.New(unknown, searchset.DefaultGranularity),
 		normUnknown: unknown,
 		threshold:   threshold,
-		queue: pq.NewQueue(func(x, y interface{}) bool {
-			return x.(*Match).Confidence > y.(*Match).Confidence
-		}, nil),
+		queue: pq.NewQueue(
+			func(x, y interface{}) bool {
+				return x.(*Match).Confidence > y.(*Match).Confidence
+			}, nil,
+		),
 	}
 }
 
@@ -373,12 +377,14 @@ func (m *matcher) findMatches(known *knownValue) {
 				}
 			}
 
-			mrs = append(mrs, searchset.MatchRanges{{
-				SrcStart:    0,
-				SrcEnd:      len(known.set.Tokens),
-				TargetStart: start,
-				TargetEnd:   end + 1,
-			}})
+			mrs = append(
+				mrs, searchset.MatchRanges{{
+					SrcStart:    0,
+					SrcEnd:      len(known.set.Tokens),
+					TargetStart: start,
+					TargetEnd:   end + 1,
+				}},
+			)
 		}
 	} else {
 		// No exact match. Perform a more thorough match.
@@ -453,7 +459,9 @@ func (c *Classifier) multipleMatch(unknown string) *pq.Queue {
 // texts to measure how well they match.
 func levDist(unknown, known string) float64 {
 	if len(known) == 0 || len(unknown) == 0 {
-		log.Printf("Zero-sized texts in Levenshtein Distance algorithm: known==%d, unknown==%d", len(known), len(unknown))
+		log.Printf(
+			"Zero-sized texts in Levenshtein Distance algorithm: known==%d, unknown==%d", len(known), len(unknown),
+		)
 		return 0.0
 	}
 

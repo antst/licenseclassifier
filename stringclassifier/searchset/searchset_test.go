@@ -17,7 +17,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/google/licenseclassifier/stringclassifier/searchset/tokenizer"
+	"github.com/antst/licenseclassifier/stringclassifier/searchset/tokenizer"
 )
 
 const (
@@ -190,9 +190,11 @@ func TestSearchSet_FindPotentialMatches(t *testing.T) {
 		t.Errorf("Offsets = %+v, want %+v", got, want)
 	}
 
-	known = New(`again in Ulysses, although in a more neomodern sense.
+	known = New(
+		`again in Ulysses, although in a more neomodern sense.
 culture. The without/within distinction intrinsic to Finnegan's Wake emerges
-`, DefaultGranularity)
+`, DefaultGranularity,
+	)
 
 	want = []MatchRanges{
 		{

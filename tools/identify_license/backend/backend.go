@@ -23,10 +23,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/licenseclassifier"
-	"github.com/google/licenseclassifier/commentparser"
-	"github.com/google/licenseclassifier/commentparser/language"
-	"github.com/google/licenseclassifier/tools/identify_license/results"
+	"github.com/antst/licenseclassifier"
+	"github.com/antst/licenseclassifier/commentparser"
+	"github.com/antst/licenseclassifier/commentparser/language"
+	"github.com/antst/licenseclassifier/tools/identify_license/results"
 )
 
 // ClassifierInterface is the interface each backend must implement.
@@ -70,7 +70,9 @@ func (b *ClassifierBackend) ClassifyLicenses(filenames []string, headers bool) (
 
 // ClassifyLicensesWithContext runs the license classifier over the given file;
 // ensure that it will respect the timeout and cancelation in the provided context.
-func (b *ClassifierBackend) ClassifyLicensesWithContext(ctx context.Context, filenames []string, headers bool) (errors []error) {
+func (b *ClassifierBackend) ClassifyLicensesWithContext(
+	ctx context.Context, filenames []string, headers bool,
+) (errors []error) {
 
 	files := make(chan string, len(filenames))
 	for _, f := range filenames {
@@ -134,13 +136,15 @@ func (b *ClassifierBackend) classifyLicense(filename string, headers bool) error
 	matchLoop := func(contents string) {
 		for _, m := range b.classifier.MultipleMatch(contents, headers) {
 			b.mu.Lock()
-			b.results = append(b.results, &results.LicenseType{
-				Filename:   filename,
-				Name:       m.Name,
-				Confidence: m.Confidence,
-				Offset:     m.Offset,
-				Extent:     m.Extent,
-			})
+			b.results = append(
+				b.results, &results.LicenseType{
+					Filename:   filename,
+					Name:       m.Name,
+					Confidence: m.Confidence,
+					Offset:     m.Offset,
+					Extent:     m.Extent,
+				},
+			)
 			b.mu.Unlock()
 		}
 	}

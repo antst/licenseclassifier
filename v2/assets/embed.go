@@ -18,7 +18,7 @@ import (
 	"io/fs"
 	"strings"
 
-	classifier "github.com/google/licenseclassifier/v2"
+	classifier "github.com/antst/licenseclassifier/v2"
 )
 
 //go:embed */*/*
@@ -29,23 +29,25 @@ var licenseFS embed.FS
 func DefaultClassifier() (*classifier.Classifier, error) {
 	c := classifier.NewClassifier(.8)
 
-	err := fs.WalkDir(licenseFS, ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			return nil
-		}
+	err := fs.WalkDir(
+		licenseFS, ".", func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if d.IsDir() {
+				return nil
+			}
 
-		b, err := licenseFS.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		splits := strings.Split(path, "/")
-		category, name, variant := splits[0], splits[1], splits[2]
-		c.AddContent(category, name, variant, b)
-		return nil
-	})
+			b, err := licenseFS.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			splits := strings.Split(path, "/")
+			category, name, variant := splits[0], splits[1], splits[2]
+			c.AddContent(category, name, variant, b)
+			return nil
+		},
+	)
 
 	if err != nil {
 		return nil, err

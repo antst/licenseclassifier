@@ -23,7 +23,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/google/licenseclassifier/commentparser/language"
+	"github.com/antst/licenseclassifier/commentparser/language"
 )
 
 const (
@@ -213,11 +213,13 @@ func (i *input) lex() {
 				}
 			}
 			if isDocString {
-				i.comments = append(i.comments, &Comment{
-					StartLine: startLine,
-					EndLine:   i.pos.line,
-					Text:      content.String(),
-				})
+				i.comments = append(
+					i.comments, &Comment{
+						StartLine: startLine,
+						EndLine:   i.pos.line,
+						Text:      content.String(),
+					},
+				)
 			}
 		default:
 			startLine := i.pos.line
@@ -245,11 +247,13 @@ func (i *input) lex() {
 						}
 					}
 				}
-				i.comments = append(i.comments, &Comment{
-					StartLine: startLine,
-					EndLine:   i.pos.line,
-					Text:      comment.String(),
-				})
+				i.comments = append(
+					i.comments, &Comment{
+						StartLine: startLine,
+						EndLine:   i.pos.line,
+						Text:      comment.String(),
+					},
+				)
 			} else if i.singleLineComment() { // Single line comment
 				for {
 					if i.eof() {
@@ -262,11 +266,13 @@ func (i *input) lex() {
 					}
 					comment.WriteRune(c)
 				}
-				i.comments = append(i.comments, &Comment{
-					StartLine: startLine,
-					EndLine:   i.pos.line,
-					Text:      comment.String(),
-				})
+				i.comments = append(
+					i.comments, &Comment{
+						StartLine: startLine,
+						EndLine:   i.pos.line,
+						Text:      comment.String(),
+					},
+				)
 			}
 		}
 

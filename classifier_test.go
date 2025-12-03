@@ -22,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/google/licenseclassifier/stringclassifier"
+	"github.com/antst/licenseclassifier/stringclassifier"
 )
 
 var (
@@ -146,7 +146,9 @@ func TestClassifier_MultipleMatch(t *testing.T) {
 		{
 			description: "Two licenses: partial match",
 			text: "Copyright (c) 2016 Yoyodyne, Inc.\n" +
-				string(apache20[:len(apache20)/2-1]) + string(apache20[len(apache20)/2+7:]) + strings.Repeat("-", 80) + "\n" +
+				string(apache20[:len(apache20)/2-1]) + string(apache20[len(apache20)/2+7:]) + strings.Repeat(
+				"-", 80,
+			) + "\n" +
 				string(bsd3[:len(bsd3)/2]) + "intervening stuff" + string(bsd3[len(bsd3)/2:]),
 			want: stringclassifier.Matches{
 				{
@@ -379,31 +381,36 @@ func TestClassifier_WithinConfidenceThreshold(t *testing.T) {
 		classifier.Threshold = DefaultConfidenceThreshold
 	}()
 	for _, tt := range tests {
-		t.Run(tt.description, func(t *testing.T) {
-			classifier.Threshold = DefaultConfidenceThreshold
-			m := classifier.NearestMatch(tt.text)
-			if got := classifier.WithinConfidenceThreshold(m.Confidence); got != tt.confDef {
-				t.Errorf("WithinConfidenceThreshold() at %v returned wrong result; got %v, want %v", classifier.Threshold, got, tt.confDef)
-			}
+		t.Run(
+			tt.description, func(t *testing.T) {
+				classifier.Threshold = DefaultConfidenceThreshold
+				m := classifier.NearestMatch(tt.text)
+				if got := classifier.WithinConfidenceThreshold(m.Confidence); got != tt.confDef {
+					t.Errorf(
+						"WithinConfidenceThreshold() at %v returned wrong result; got %v, want %v",
+						classifier.Threshold, got, tt.confDef,
+					)
+				}
 
-			classifier.Threshold = 0.99
-			m = classifier.NearestMatch(tt.text)
-			if got := classifier.WithinConfidenceThreshold(m.Confidence); got != tt.conf99 {
-				t.Errorf("WithinConfidenceThreshold(%q) = %v, want %v", tt.description, got, tt.conf99)
-			}
+				classifier.Threshold = 0.99
+				m = classifier.NearestMatch(tt.text)
+				if got := classifier.WithinConfidenceThreshold(m.Confidence); got != tt.conf99 {
+					t.Errorf("WithinConfidenceThreshold(%q) = %v, want %v", tt.description, got, tt.conf99)
+				}
 
-			classifier.Threshold = 0.93
-			m = classifier.NearestMatch(tt.text)
-			if got := classifier.WithinConfidenceThreshold(m.Confidence); got != tt.conf93 {
-				t.Errorf("WithinConfidenceThreshold(%q) = %v, want %v", tt.description, got, tt.conf93)
-			}
+				classifier.Threshold = 0.93
+				m = classifier.NearestMatch(tt.text)
+				if got := classifier.WithinConfidenceThreshold(m.Confidence); got != tt.conf93 {
+					t.Errorf("WithinConfidenceThreshold(%q) = %v, want %v", tt.description, got, tt.conf93)
+				}
 
-			classifier.Threshold = 0.05
-			m = classifier.NearestMatch(tt.text)
-			if got := classifier.WithinConfidenceThreshold(m.Confidence); got != tt.conf5 {
-				t.Errorf("WithinConfidenceThreshold(%q) = %v, want %v", tt.description, got, tt.conf5)
-			}
-		})
+				classifier.Threshold = 0.05
+				m = classifier.NearestMatch(tt.text)
+				if got := classifier.WithinConfidenceThreshold(m.Confidence); got != tt.conf5 {
+					t.Errorf("WithinConfidenceThreshold(%q) = %v, want %v", tt.description, got, tt.conf5)
+				}
+			},
+		)
 	}
 }
 
@@ -835,33 +842,37 @@ func TestNew(t *testing.T) {
 		},
 		{
 			desc: "function archive",
-			options: []OptionFunc{ArchiveFunc(func() ([]byte, error) {
-				return []byte("not a gzipped file"), nil
-			})},
+			options: []OptionFunc{ArchiveFunc(
+				func() ([]byte, error) {
+					return []byte("not a gzipped file"), nil
+				},
+			)},
 			wantArchive: func() []byte { return []byte("not a gzipped file") },
 			wantErr:     true,
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.desc, func(t *testing.T) {
-			c, err := New(0.5, tt.options...)
-			if tt.wantErr != (err != nil) {
-				t.Fatalf("unexpected error: %v", err)
-			}
-			if err == nil {
-				if tt.wantArchive == nil {
-					if c.archive != nil {
-						t.Errorf("wanted default archive, but got specified archive")
-					}
-				} else {
-					got, _ := c.archive()
-					want := tt.wantArchive()
-					if !bytes.Equal(got, want) {
-						t.Errorf("archives did not match; got %d bytes, wanted %d", len(got), len(want))
+		t.Run(
+			tt.desc, func(t *testing.T) {
+				c, err := New(0.5, tt.options...)
+				if tt.wantErr != (err != nil) {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				if err == nil {
+					if tt.wantArchive == nil {
+						if c.archive != nil {
+							t.Errorf("wanted default archive, but got specified archive")
+						}
+					} else {
+						got, _ := c.archive()
+						want := tt.wantArchive()
+						if !bytes.Equal(got, want) {
+							t.Errorf("archives did not match; got %d bytes, wanted %d", len(got), len(want))
+						}
 					}
 				}
-			}
-		})
+			},
+		)
 	}
 
 }

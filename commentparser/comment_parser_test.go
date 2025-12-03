@@ -18,8 +18,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/antst/licenseclassifier/commentparser/language"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/licenseclassifier/commentparser/language"
 )
 
 const (
@@ -123,11 +123,13 @@ func TestCommentParser_Lex(t *testing.T) {
 		{
 			description: "TR Command String",
 			lang:        language.Python,
-			source: fmt.Sprintf(`#%s
+			source: fmt.Sprintf(
+				`#%s
 AUTH= \
 | tr '"\n' \
 | base64 -w
-`, singleLineText),
+`, singleLineText,
+			),
 			want: []*Comment{
 				{
 					StartLine: 1,
@@ -549,8 +551,10 @@ func TestCommentParser_ChunkIterator(t *testing.T) {
 		i := 0
 		for got := range tt.comments.ChunkIterator() {
 			if i >= len(tt.want) {
-				t.Errorf("Mismatch(%q) more comment chunks than expected = %v, want %v",
-					tt.description, i+1, len(tt.want))
+				t.Errorf(
+					"Mismatch(%q) more comment chunks than expected = %v, want %v",
+					tt.description, i+1, len(tt.want),
+				)
 				break
 			}
 			if !reflect.DeepEqual(got, tt.want[i]) {
@@ -559,8 +563,10 @@ func TestCommentParser_ChunkIterator(t *testing.T) {
 			i++
 		}
 		if i != len(tt.want) {
-			t.Errorf("Mismatch(%q) not enough comment chunks = %v, want %v",
-				tt.description, i, len(tt.want))
+			t.Errorf(
+				"Mismatch(%q) not enough comment chunks = %v, want %v",
+				tt.description, i, len(tt.want),
+			)
 		}
 	}
 }

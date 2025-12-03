@@ -35,8 +35,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/google/licenseclassifier"
-	"github.com/google/licenseclassifier/tools/identify_license/backend"
+	"github.com/antst/licenseclassifier"
+	"github.com/antst/licenseclassifier/tools/identify_license/backend"
 )
 
 var (
@@ -48,12 +48,14 @@ var (
 
 func init() {
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, `Usage: %s <licensefile> ...
+		fmt.Fprintf(
+			os.Stderr, `Usage: %s <licensefile> ...
 
 Identify an unknown license.
 
 Options:
-`, filepath.Base(os.Args[0]))
+`, filepath.Base(os.Args[0]),
+		)
 		flag.PrintDefaults()
 	}
 }
@@ -85,8 +87,10 @@ func main() {
 
 	sort.Sort(results)
 	for _, r := range results {
-		fmt.Printf("%s: %s (confidence: %v, offset: %v, extent: %v)\n",
-			r.Filename, r.Name, r.Confidence, r.Offset, r.Extent)
+		fmt.Printf(
+			"%s: %s (confidence: %v, offset: %v, extent: %v)\n",
+			r.Filename, r.Name, r.Confidence, r.Offset, r.Extent,
+		)
 	}
 	be.Close()
 }

@@ -46,7 +46,7 @@ import (
 	"io"
 	"sort"
 
-	"github.com/google/licenseclassifier/stringclassifier/searchset/tokenizer"
+	"github.com/antst/licenseclassifier/stringclassifier/searchset/tokenizer"
 )
 
 // DefaultGranularity is the minimum size (in words) of the hash chunks.
@@ -84,12 +84,14 @@ func New(s string, granularity int) *SearchSet {
 
 	// Start generating hash values for all substrings within the text.
 	h := make(tokenizer.Hash)
-	checksums, tokenRanges := toks.GenerateHashes(h, func(a, b int) int {
-		if a < b {
-			return a
-		}
-		return b
-	}(len(toks), granularity))
+	checksums, tokenRanges := toks.GenerateHashes(
+		h, func(a, b int) int {
+			if a < b {
+				return a
+			}
+			return b
+		}(len(toks), granularity),
+	)
 	sset := &SearchSet{
 		Tokens:         toks,
 		Hashes:         h,
@@ -107,10 +109,12 @@ func (s *SearchSet) GenerateNodeList() {
 	}
 
 	for i := 0; i < len(s.Checksums); i++ {
-		s.nodes = append(s.nodes, &node{
-			checksum: s.Checksums[i],
-			tokens:   s.ChecksumRanges[i],
-		})
+		s.nodes = append(
+			s.nodes, &node{
+				checksum: s.Checksums[i],
+				tokens:   s.ChecksumRanges[i],
+			},
+		)
 	}
 }
 

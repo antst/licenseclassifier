@@ -25,9 +25,9 @@ import (
 
 	//gc "google3/devtools/compliance/common/licenseclassifier/classifier"
 
-	classifier "github.com/google/licenseclassifier/v2"
-	"github.com/google/licenseclassifier/v2/assets"
-	"github.com/google/licenseclassifier/v2/tools/identify_license/results"
+	classifier "github.com/antst/licenseclassifier/v2"
+	"github.com/antst/licenseclassifier/v2/assets"
+	"github.com/antst/licenseclassifier/v2/tools/identify_license/results"
 )
 
 // ClassifierInterface is the interface each backend must implement.
@@ -108,7 +108,9 @@ func (b *ClassifierBackend) ClassifyLicenses(numTasks int, filenames []string, h
 }
 
 // ClassifyLicensesWithContext runs the license classifier over the given file; ensure that it will respect the timeout in the provided context.
-func (b *ClassifierBackend) ClassifyLicensesWithContext(ctx context.Context, numTasks int, filenames []string, headers bool) (errors []error) {
+func (b *ClassifierBackend) ClassifyLicensesWithContext(
+	ctx context.Context, numTasks int, filenames []string, headers bool,
+) (errors []error) {
 	done := make(chan bool)
 	go func() {
 		errors = b.ClassifyLicenses(numTasks, filenames, headers)
@@ -140,15 +142,17 @@ func (b *ClassifierBackend) classifyLicense(filename string, headers bool) error
 			}
 
 			b.mu.Lock()
-			b.results = append(b.results, &results.LicenseType{
-				Filename:   filename,
-				MatchType:  m.MatchType,
-				Name:       m.Name,
-				Variant:    m.Variant,
-				Confidence: m.Confidence,
-				StartLine:  m.StartLine,
-				EndLine:    m.EndLine,
-			})
+			b.results = append(
+				b.results, &results.LicenseType{
+					Filename:   filename,
+					MatchType:  m.MatchType,
+					Name:       m.Name,
+					Variant:    m.Variant,
+					Confidence: m.Confidence,
+					StartLine:  m.StartLine,
+					EndLine:    m.EndLine,
+				},
+			)
 			b.mu.Unlock()
 		}
 	}

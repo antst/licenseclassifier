@@ -26,8 +26,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/google/licenseclassifier"
-	"github.com/google/licenseclassifier/stringclassifier/searchset"
+	"github.com/antst/licenseclassifier"
+	"github.com/antst/licenseclassifier/stringclassifier/searchset"
 )
 
 var (
@@ -147,7 +147,10 @@ func TestSerializer_ArchiveLicense(t *testing.T) {
 			}
 
 			if hdr.Name != strings.TrimSuffix(tt.want[i].name, "txt")+"hash" {
-				t.Errorf("ArchiveLicenses(%q) = %+v, want %+v", tt.description, hdr.Name, strings.TrimSuffix(tt.want[i].name, "txt")+"hash")
+				t.Errorf(
+					"ArchiveLicenses(%q) = %+v, want %+v", tt.description, hdr.Name,
+					strings.TrimSuffix(tt.want[i].name, "txt")+"hash",
+				)
 			}
 
 			b.Reset()

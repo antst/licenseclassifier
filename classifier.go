@@ -30,8 +30,8 @@ import (
 	"sync"
 	"unicode"
 
-	"github.com/google/licenseclassifier/stringclassifier"
-	"github.com/google/licenseclassifier/stringclassifier/searchset"
+	"github.com/antst/licenseclassifier/stringclassifier"
+	"github.com/antst/licenseclassifier/stringclassifier/searchset"
 )
 
 // DefaultConfidenceThreshold is the minimum confidence percentage we're willing to accept in order

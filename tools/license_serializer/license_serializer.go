@@ -27,8 +27,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/google/licenseclassifier"
-	"github.com/google/licenseclassifier/serializer"
+	"github.com/antst/licenseclassifier"
+	"github.com/antst/licenseclassifier/serializer"
 )
 
 var (
@@ -38,13 +38,15 @@ var (
 
 func init() {
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, `Usage: %s [OPTIONS]
+		fmt.Fprintf(
+			os.Stderr, `Usage: %s [OPTIONS]
 
 Calculate the hash values for files and serialize them into a database.
 See go/license-classifier
 
 Options:
-`, filepath.Base(os.Args[0]))
+`, filepath.Base(os.Args[0]),
+		)
 		flag.PrintDefaults()
 	}
 }

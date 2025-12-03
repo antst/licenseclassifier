@@ -43,9 +43,9 @@ import (
 	"sort"
 	"time"
 
-	classifier "github.com/google/licenseclassifier/v2"
-	"github.com/google/licenseclassifier/v2/tools/identify_license/backend"
-	"github.com/google/licenseclassifier/v2/tools/identify_license/results"
+	classifier "github.com/antst/licenseclassifier/v2"
+	"github.com/antst/licenseclassifier/v2/tools/identify_license/backend"
+	"github.com/antst/licenseclassifier/v2/tools/identify_license/results"
 )
 
 var (
@@ -55,8 +55,12 @@ var (
 	numTasks      = flag.Int("tasks", 1000, "the number of license scanning tasks running concurrently")
 	timeout       = flag.Duration("timeout", 24*time.Hour, "timeout before giving up on classifying a file.")
 	tracePhases   = flag.String("trace_phases", "", "comma-separated list of phases of the license classifier to trace")
-	traceLicenses = flag.String("trace_licenses", "", "comma-separated list of licenses for the license classifier to trace")
-	ignorePaths   = flag.String("ignore_paths_re", "", "comma-separated list of regular expressions that match file paths to ignore")
+	traceLicenses = flag.String(
+		"trace_licenses", "", "comma-separated list of licenses for the license classifier to trace",
+	)
+	ignorePaths = flag.String(
+		"ignore_paths_re", "", "comma-separated list of regular expressions that match file paths to ignore",
+	)
 )
 
 // expandFiles recursively returns a list of files stored in a list of
@@ -82,19 +86,21 @@ func expandFiles(ctx context.Context, paths []string) ([]string, error) {
 			return nil, err
 		}
 
-		err = filepath.Walk(p, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if info.IsDir() {
-				if shouldIgnore(ip, info.Name()) {
-					return fs.SkipDir
+		err = filepath.Walk(
+			p, func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
 				}
-				return nil // walk the directory
-			}
-			handleFile(path)
-			return nil
-		})
+				if info.IsDir() {
+					if shouldIgnore(ip, info.Name()) {
+						return fs.SkipDir
+					}
+					return nil // walk the directory
+				}
+				handleFile(path)
+				return nil
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -145,12 +151,14 @@ func outputJSON(filename *string, res results.LicenseTypes, includeText bool) er
 
 func init() {
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, `Usage: %s <licensefile> ...
+		fmt.Fprintf(
+			os.Stderr, `Usage: %s <licensefile> ...
 
 Identify an unknown license.
 
 Options:
-`, filepath.Base(os.Args[0]))
+`, filepath.Base(os.Args[0]),
+		)
 		flag.PrintDefaults()
 	}
 }
@@ -169,7 +177,8 @@ func main() {
 		&classifier.TraceConfiguration{
 			TracePhases:   *tracePhases,
 			TraceLicenses: *traceLicenses,
-		})
+		},
+	)
 
 	ctx, cancel := context.WithTimeout(context.Background(), *timeout)
 	defer cancel()
@@ -192,8 +201,10 @@ func main() {
 		if r.MatchType != "License" && r.MatchType != "Header" {
 			name = fmt.Sprintf("%s:%s", r.MatchType, r.Name)
 		}
-		fmt.Printf("%s %s (variant: %v, confidence: %v, start: %v, end: %v)\n",
-			r.Filename, name, r.Variant, r.Confidence, r.StartLine, r.EndLine)
+		fmt.Printf(
+			"%s %s (variant: %v, confidence: %v, start: %v, end: %v)\n",
+			r.Filename, name, r.Variant, r.Confidence, r.StartLine, r.EndLine,
+		)
 	}
 	if len(*jsonFname) > 0 {
 		err = outputJSON(jsonFname, results, *includeText)
